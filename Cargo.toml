@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "proto",
+    "controller",
+    "worker",
+    "example-wasm"
+]
+resolver = "2"

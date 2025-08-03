@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package runtime;
+
+service ControllerService {
+    rpc RegisterWorker(WorkerInfo) returns (RegisterResponse);
+    rpc Heartbeat(WorkerLoad) returns (HeartbeatResponse);
+}
+
+service WorkerService {
+    rpc ExecuteWasm(WasmPayload) returns (WasmResponse);
+    rpc StartInstance(StartInstanceRequest) returns (StartInstanceResponse);
+    rpc Invoke(InvokeRequest) returns (InvokeResponse);
+    rpc Snapshot(SnapshotRequest) returns (SnapshotResponse);
+    rpc Restore(RestoreRequest) returns (RestoreResponse);
+}
+
+message StartInstanceRequest {
+    bytes wasm_bytes = 1;
+}
+
+message StartInstanceResponse {
+    bool success = 1;
+    string instance_id = 2;
+    string error_message = 3;
+}
+
+message InvokeRequest {
+    string instance_id = 1;
+    string function_name = 2;
+}
+
+message InvokeResponse {
+    bool success = 1;
+    int32 result = 2;
+    string error_message = 3;
+    uint64 execution_time_ns = 4;
+}
+
+message SnapshotRequest {
+    string instance_id = 1;
+}
+
+message SnapshotResponse {
+    bool success = 1;
+    bytes memory_bytes = 2;
+    string error_message = 3;
+}
+
+message RestoreRequest {
+    string instance_id = 1; // Preserve the same ID
+    bytes wasm_bytes = 2; // For creating the module/instance
+    bytes memory_bytes = 3; // For injecting state
+}
+
+message RestoreResponse {
+    bool success = 1;
+    string error_message = 2;
+    uint64 restore_time_ns = 3;
+}
+
+message WorkerInfo {
+    string worker_id = 1;
+    string address = 2; // e.g., "http://127.0.0.1:50052"
+}
+
+message RegisterResponse {
+    bool success = 1;
+}
+
+message WorkerLoad {
+    string worker_id = 1;
+    float cpu_load = 2; // 0.0 to 100.0
+}
+
+message HeartbeatResponse {
+    bool acknowledged = 1;
+}
+
+message WasmPayload {
+    bytes wasm_bytes = 1;
+    string function_name = 2;
+}
+
+message WasmResponse {
+    bool success = 1;
+    string message = 2;
+    int32 result = 3;
+    uint64 execution_time_ns = 4;
+}
